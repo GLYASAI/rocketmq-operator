@@ -76,17 +76,20 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	}
 
 	// Watch for changes to primary resource Broker
-	err = c.Watch(&source.Kind{Type: &rocketmqv1alpha1.Broker{}}, &handler.EnqueueRequestForObject{})
+	err = c.Watch(source.Kind(mgr.GetCache(), &rocketmqv1alpha1.Broker{},
+		&handler.TypedEnqueueRequestForObject[*rocketmqv1alpha1.Broker]{}))
 	if err != nil {
 		return err
 	}
 
 	// TODO(user): Modify this to be the types you create that are owned by the primary resource
 	// Watch for changes to secondary resource Pods and requeue the owner Broker
-	err = c.Watch(&source.Kind{Type: &corev1.Pod{}}, &handler.EnqueueRequestForOwner{
-		IsController: true,
-		OwnerType:    &rocketmqv1alpha1.Broker{},
-	})
+	err = c.Watch(source.Kind(mgr.GetCache(), &corev1.Pod{}, handler.TypedEnqueueRequestForOwner[*corev1.Pod](
+		mgr.GetScheme(),
+		mgr.GetRESTMapper(),
+		&rocketmqv1alpha1.Broker{},
+		handler.OnlyControllerOwner(),
+	)))
 	if err != nil {
 		return err
 	}
@@ -466,7 +469,7 @@ func (r *ReconcileBroker) getBrokerStatefulSet(broker *rocketmqv1alpha1.Broker, 
 						Image:     broker.Spec.BrokerImage,
 						Name:      cons.BrokerContainerName,
 						Lifecycle: &corev1.Lifecycle{
-							PostStart: &corev1.Handler{
+							PostStart: &corev1.LifecycleHandler{
 								Exec: &corev1.ExecAction{
 									Command: cmd,
 								},

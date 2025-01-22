@@ -69,17 +69,20 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	}
 
 	// Watch for changes to primary resource TopicTransfer
-	err = c.Watch(&source.Kind{Type: &rocketmqv1alpha1.TopicTransfer{}}, &handler.EnqueueRequestForObject{})
+	err = c.Watch(source.Kind(mgr.GetCache(), &rocketmqv1alpha1.TopicTransfer{},
+		&handler.TypedEnqueueRequestForObject[*rocketmqv1alpha1.TopicTransfer]{}))
 	if err != nil {
 		return err
 	}
 
 	// TODO(user): Modify this to be the types you create that are owned by the primary resource
 	// Watch for changes to secondary resource Pods and requeue the owner TopicTransfer
-	err = c.Watch(&source.Kind{Type: &corev1.Pod{}}, &handler.EnqueueRequestForOwner{
-		IsController: true,
-		OwnerType:    &rocketmqv1alpha1.TopicTransfer{},
-	})
+	err = c.Watch(source.Kind(mgr.GetCache(), &corev1.Pod{}, handler.TypedEnqueueRequestForOwner[*corev1.Pod](
+		mgr.GetScheme(),
+		mgr.GetRESTMapper(),
+		&rocketmqv1alpha1.TopicTransfer{},
+		handler.OnlyControllerOwner(),
+	)))
 	if err != nil {
 		return err
 	}
