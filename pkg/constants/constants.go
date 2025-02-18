@@ -49,6 +49,9 @@ const (
 	// BrokerConfigDir is the directory of the mounted config file
 	BrokerConfigPath = DataPath + "/rocketmq/broker/conf"
 
+	// BrokerPlainACLConfigName is the name of mounted acl config file
+	BrokerPlainACLConfigName = "plain_acl.yml"
+
 	// BrokerConfigName is the name of mounted configuration file
 	BrokerConfigName = "broker-common.conf"
 
