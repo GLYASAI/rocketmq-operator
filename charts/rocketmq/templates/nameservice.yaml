@@ -1,7 +1,7 @@
 apiVersion: rocketmq.apache.org/v1alpha1
 kind: NameService
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}-nameservice
   labels:
   {{- include "rocketmq.labels" . | nindent 4 }}
 spec:

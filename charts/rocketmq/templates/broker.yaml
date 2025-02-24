@@ -19,7 +19,7 @@ data:
 apiVersion: rocketmq.apache.org/v1alpha1
 kind: Broker
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}-broker
   labels:
   {{- include "rocketmq.labels" . | nindent 4 }}
 spec:
