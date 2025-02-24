@@ -65,7 +65,7 @@ nameservice:
       memory: 512Mi
   storage:
     size: 1Gi
-    storageClassName: local-path
+    storageClassName:
 
 
 console:
