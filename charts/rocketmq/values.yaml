@@ -31,6 +31,7 @@ broker:
     diskMaxUsedSpaceRatio=85
 
   acl: |-
+    accounts:
     - accessKey: RocketMQ
       secretKey: 123456789
       admin: false
