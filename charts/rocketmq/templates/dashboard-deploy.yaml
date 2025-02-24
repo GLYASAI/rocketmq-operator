@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rocketmq.fullname" . }}-console
+  labels:
+  {{- include "rocketmq.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.console.replicas }}
+  selector:
+    matchLabels:
+      app: rocketmq-console
+    {{- include "rocketmq.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: rocketmq-console
+      {{- include "rocketmq.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: JAVA_OPTS
+          value: {{ quote .Values.console.env.javaOpts }}
+        image: {{ .Values.console.image.repository }}:{{ .Values.console.image.tag }}
+        imagePullPolicy: {{ .Values.console.imagePullPolicy }}
+        name: console
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        resources:
+          {{- toYaml .Values.console.resources | nindent 12 }}
+        volumeMounts:
+        - mountPath: /apps/data/console/config
+          name: console-config
+        - mountPath: /tmp/rocketmq-console/data/users.properties
+          name: console-config
+          subPath: users.properties
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: {{ include "rocketmq.fullname" . }}-console-config
+        name: console-config

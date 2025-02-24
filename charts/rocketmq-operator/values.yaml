@@ -8,8 +8,8 @@ rocketmqOperator:
     env:
       operatorName: rocketmq-operator
     image:
-      repository: apache/rocketmq-operator
-      tag: latest
+      repository: registry.sensetime.com/sensecore-infra/rocketmq-operator
+      tag: v0.4.0_20250218T134345Z_d02bcb4a45
     imagePullPolicy: IfNotPresent
   replicas: 1
   serviceAccount:

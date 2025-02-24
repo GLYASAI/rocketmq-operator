@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "rocketmq.fullname" . }}-nameservice
+  labels:
+  {{- include "rocketmq.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    app: name_service
+    {{- include "rocketmq.selectorLabels" . | nindent 4 }}
+  ports:
+  - name: http
+    port: 9876
+    protocol: TCP
+    targetPort: 9876

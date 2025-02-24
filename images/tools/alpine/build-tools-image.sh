@@ -33,12 +33,12 @@ if [ $# -lt 1 ]; then
 fi
 
 ROCKETMQ_VERSION=$1
-DOCKERHUB_REPO=registry.sensetime.com/diamond-dev/apacherocketmq/rocketmq-nameserver
-IMAGE_NAME=${DOCKERHUB_REPO}:${ROCKETMQ_VERSION}-alpine-operator-0.4.0
+DOCKERHUB_REPO=registry.sensetime.com/sensecore-infra/rocketmq-benchmark
+IMAGE_NAME=${DOCKERHUB_REPO}:${ROCKETMQ_VERSION}
 
 checkVersion $ROCKETMQ_VERSION
 
-docker build -t ${IMAGE_NAME} --build-arg version=${ROCKETMQ_VERSION} .
+docker build . -t ${IMAGE_NAME} --build-arg version=${ROCKETMQ_VERSION}
 #docker buildx build --platform linux/amd64,linux/arm64 --push -t ${IMAGE_NAME} --build-arg version=${ROCKETMQ_VERSION} .
 
 #docker push $IMAGE_NAME

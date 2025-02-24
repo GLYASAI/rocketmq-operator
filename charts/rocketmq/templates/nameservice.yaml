@@ -1,0 +1,26 @@
+apiVersion: rocketmq.apache.org/v1alpha1
+kind: NameService
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+  {{- include "rocketmq.labels" . | nindent 4 }}
+spec:
+  dnsPolicy: ClusterFirst
+  hostNetwork: false
+  hostPath: /data/rocketmq/nameserver
+  imagePullPolicy: {{  .Values.nameservice.image.imagePullPolicy }}
+  nameServiceImage: {{ .Values.nameservice.image.repository }}:{{ .Values.nameservice.image.tag | default .Chart.AppVersion }}
+  resources:
+    {{- toYaml .Values.nameservice.resources | nindent 4 }}
+  size: {{  .Values.nameservice.size }}
+  storageMode: StorageClass
+  volumeClaimTemplates:
+  - metadata:
+      name: namesrv-storage
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ .Values.nameservice.storage.size }}
+      storageClassName: {{ .Values.nameservice.storage.storageClassName }}

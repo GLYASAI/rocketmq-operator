@@ -19,7 +19,7 @@ spec:
       containers:
       - args: {{- toYaml .Values.rocketmqOperator.manager.args | nindent 8 }}
         command:
-        - /manager
+        - /rocketmq-operator
         env:
         - name: WATCH_NAMESPACE
           valueFrom:

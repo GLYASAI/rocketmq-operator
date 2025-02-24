@@ -18,14 +18,18 @@ data:
       config: classpath:logback.xml
     rocketmq:
       config:
-        isVIPChannel:
+        namesrvAddrs:
+        - nameservice:9876
+        isVIPChannel: true
         timeoutMillis:
         dataPath: /tmp/rocketmq-console/data
         enableDashBoardCollect: true
         msgTrackTopicName:
         ticketKey: ticket
-        loginRequired: false
+        loginRequired: true
         useTLS: false
+        accessKey: rocketmq2
+        secretKey: 123456789
     threadpool:
       config:
         coreSize: 10
@@ -35,6 +39,18 @@ data:
   role-permission.yml: |
     rolePerms:
       ordinary:
+        - /rocketmq/*.query
+        - /ops/*.query
+        - /dashboard/*.query
+        - /topic/*.query
+        - /producer/*.query
+        - /message/*.query
+        - /messageTrace/*.query
+        - /monitor/*.query
+        - /consumer/*.query
+        - /cluster/*.query
+        - /dlqMessage/*.query
+      administrator:
         - /rocketmq/*.query
         - /ops/*.query
         - /dashboard/*.query
@@ -49,44 +65,47 @@ data:
         - /dlqMessage/*.query
         - /dlqMessage/exportDlqMessage.do
         - /dlqMessage/batchResendDlqMessage.do
-        - /acl/*.query
----
+  users.properties: |
+    # This file supports hot reload. That is, when adding or modifying users, there is no need to restart the console.
+    # Format: Each line defines one user, in the form of "username=password[,N]".
+    # N is an optional item, which can be 0 (ordinary user); 1 (administrator).
+    admin=12345678,1
 
-apiVersion: rocketmq.apache.org/v1alpha1
-kind: Console
+    guest=12345678,0
+---
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: console
-  namespace: default
 spec:
-  # nameServers is the [ip:port] list of name service
-  nameServers: ""
-  # consoleDeployment define the console deployment
-  consoleDeployment:
-    apiVersion: apps/v1
-    kind: Deployment
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rocketmq-console
+  template:
     metadata:
       labels:
         app: rocketmq-console
     spec:
-      replicas: 1
-      selector:
-        matchLabels:
-          app: rocketmq-console
-      template:
-        metadata:
-          labels:
-            app: rocketmq-console
-        spec:
-          containers:
-            - name: console
-              image: apacherocketmq/rocketmq-console:2.0.0
-              args: ["--spring.config.location=/apps/data/console/config/"]
-              ports:
-                - containerPort: 8080
-              volumeMounts:
-                - mountPath: "/apps/data/console/config"
-                  name: console-config
-          volumes:
-            - name: console-config
-              configMap:
-                name: console-config
+      containers:
+      - name: console
+        env:
+        - name: JAVA_OPTS
+          value: -Dspring.config.location=/apps/data/console/config/
+        image: registry.sensetime.com/sensecore-infra/rocketmq-dashboard:2.0.1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /apps/data/console/config
+          name: console-config
+        - mountPath: /tmp/rocketmq-console/data/users.properties
+          name: console-config
+          subPath: users.properties
+      dnsPolicy: ClusterFirst
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: console-config
+        name: console-config
