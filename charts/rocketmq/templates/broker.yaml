@@ -26,10 +26,8 @@ spec:
   allowRestart: {{ .Values.broker.allowRestart }}
   brokerImage: {{ .Values.broker.image.repository }}:{{ .Values.broker.image.tag | default .Chart.AppVersion }}
   env:
-  {{- if .Values.broker.env.BROKER_MEM }}
   - name: BROKER_MEM
     value: "{{ .Values.broker.env.BROKER_MEM }}"
-  {{- end }}
   hostNetwork: {{ .Values.broker.hostNetwork }}
   hostPath: /data/rocketmq/broker
   size: {{ .Values.broker.size }}
